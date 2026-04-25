@@ -2,6 +2,7 @@
 
 import { SpotData } from '@/lib/types';
 import { formatDateRange } from '@/lib/formatDate';
+import { getContrastTextColor } from '@/lib/colorContrast';
 import { useEffect } from 'react';
 import PhotoGallery from './PhotoGallery';
 
@@ -30,6 +31,7 @@ export default function Modal({ spot, onClose }: ModalProps) {
   ];
   const hasAnyFooterLink = footerLinks.some((link) => link.url);
   const buttonColor = spot.color || '#2563eb';
+  const buttonTextColor = getContrastTextColor(buttonColor);
 
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
@@ -80,7 +82,10 @@ export default function Modal({ spot, onClose }: ModalProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="modal-link-btn"
-                  style={{ backgroundColor: buttonColor }}
+                  style={{
+                    backgroundColor: buttonColor,
+                    color: buttonTextColor,
+                  }}
                 >
                   {link.label}↗
                 </a>
