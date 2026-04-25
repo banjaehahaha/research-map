@@ -13,6 +13,7 @@ import ArcPath from './ArcPath';
 import HoverTooltip from './HoverTooltip';
 import Modal from './Modal';
 import ResearchLegend from './ResearchLegend';
+import { useIsTouchDevice } from '@/lib/useIsTouchDevice';
 // 서울 기점 마커는 제거되었지만, MAP_CONFIG.seoul은 초기 지도 중심 등 다른 곳에서 참조될 수 있음
 
 const SHEET_CSV_URL = process.env.NEXT_PUBLIC_SHEET_CSV_URL || '';
@@ -26,6 +27,9 @@ export default function MapContent() {
   const [hoveredGroupId, setHoveredGroupId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isTouch = useIsTouchDevice();
+  // 터치 디바이스에서는 마커가 작으면 탭이 어려우므로 반지름을 키움
+  const markerRadius = isTouch ? 11 : STYLE_CONFIG.marker.radius;
 
   useEffect(() => {
     if (!SHEET_CSV_URL) return;
@@ -61,6 +65,11 @@ export default function MapContent() {
     setHoveredGroupId(null);
   }, []);
 
+  // 터치: 같은 항목을 다시 탭하면 dim 해제
+  const handleLegendToggle = useCallback((researchId: string) => {
+    setHoveredGroupId((curr) => (curr === researchId ? null : researchId));
+  }, []);
+
   const researchGroups = groupByResearch(spots);
 
   return (
@@ -75,6 +84,8 @@ export default function MapContent() {
         hoveredGroupId={hoveredGroupId}
         onHover={handleLegendOver}
         onOut={handleLegendOut}
+        onToggle={handleLegendToggle}
+        isTouch={isTouch}
       />
 
       <MapContainer
@@ -128,7 +139,7 @@ export default function MapContent() {
                 <CircleMarker
                   key={`spot-${spot.research_id}-${spot.spot_order}`}
                   center={[spot.lat, spot.lng]}
-                  radius={STYLE_CONFIG.marker.radius}
+                  radius={markerRadius}
                   pathOptions={{
                     fillColor: groupColor,
                     fillOpacity: markerFillOpacity,
@@ -136,11 +147,18 @@ export default function MapContent() {
                     weight: STYLE_CONFIG.marker.strokeWeight,
                     opacity: markerStrokeOpacity,
                   }}
-                  eventHandlers={{
-                    click: () => setSelectedSpot(spot),
-                    mouseover: () => handleSpotOver(spot),
-                    mouseout: handleSpotOut,
-                  }}
+                  eventHandlers={
+                    isTouch
+                      ? {
+                          // 터치: 호버 이벤트 바인딩 안 함 (탭 즉시 모달 열림)
+                          click: () => setSelectedSpot(spot),
+                        }
+                      : {
+                          click: () => setSelectedSpot(spot),
+                          mouseover: () => handleSpotOver(spot),
+                          mouseout: handleSpotOut,
+                        }
+                  }
                 >
                   <Tooltip direction="right" offset={[10, 0]} opacity={0.9}>
                     <span className="spot-label">{spot.spot_name}</span>
@@ -151,8 +169,8 @@ export default function MapContent() {
           );
         })}
 
-        {/* 호버 섬네일 */}
-        {hoveredSpot && <HoverTooltip spot={hoveredSpot} />}
+        {/* 호버 섬네일 - 터치 디바이스에서는 표시 안 함 */}
+        {!isTouch && hoveredSpot && <HoverTooltip spot={hoveredSpot} />}
       </MapContainer>
 
       {/* 모달 */}

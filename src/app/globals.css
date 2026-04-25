@@ -60,6 +60,11 @@ html, body {
 }
 
 .header-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  margin: -8px;
   color: var(--color-text-secondary);
   transition: color 0.2s;
 }
@@ -525,8 +530,17 @@ html, body {
   }
 
   .modal-link-btn {
-    padding: 8px 6px;
+    padding: 10px 6px;
     font-size: 12px;
+    min-height: 40px;
+  }
+
+  .modal-close {
+    width: 40px;
+    height: 40px;
+    top: 12px;
+    right: 12px;
+    font-size: 24px;
   }
 
   .modal-title {
@@ -544,7 +558,37 @@ html, body {
     max-width: 180px;
   }
 
+  .research-legend-item {
+    padding: 8px 8px;
+  }
+
   .research-legend-name {
     font-size: 12px;
+  }
+}
+
+/* ===== Touch device tweaks (any viewport) ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* 터치 디바이스에서 hover 효과는 의미 없으므로 끔 */
+  .research-legend-item:hover {
+    background: transparent;
+  }
+
+  .modal-link-btn:hover {
+    opacity: 1;
+    transform: none;
+  }
+
+  .modal-gallery-img:hover {
+    opacity: 1;
+  }
+
+  /* 활성(탭) 시 즉각 피드백 */
+  .research-legend-item:active {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .modal-link-btn:active {
+    opacity: 0.85;
   }
 }

@@ -8,6 +8,8 @@ interface ResearchLegendProps {
   hoveredGroupId: string | null;
   onHover: (researchId: string) => void;
   onOut: () => void;
+  onToggle: (researchId: string) => void;
+  isTouch: boolean;
 }
 
 export default function ResearchLegend({
@@ -15,6 +17,8 @@ export default function ResearchLegend({
   hoveredGroupId,
   onHover,
   onOut,
+  onToggle,
+  isTouch,
 }: ResearchLegendProps) {
   if (groups.length === 0) return null;
 
@@ -26,14 +30,21 @@ export default function ResearchLegend({
             hoveredGroupId !== null && hoveredGroupId !== group.research_id;
           const dotColor = group.color || STYLE_CONFIG.marker.fillColor;
 
+          // 터치: 탭으로 dim 토글 / 데스크탑: 호버
+          const interactionProps = isTouch
+            ? { onClick: () => onToggle(group.research_id) }
+            : {
+                onMouseEnter: () => onHover(group.research_id),
+                onMouseLeave: onOut,
+              };
+
           return (
             <li
               key={group.research_id}
               className={`research-legend-item${
                 isDimmed ? ' research-legend-item-dimmed' : ''
               }`}
-              onMouseEnter={() => onHover(group.research_id)}
-              onMouseLeave={onOut}
+              {...interactionProps}
             >
               <span
                 className="research-legend-dot"
