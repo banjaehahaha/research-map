@@ -12,6 +12,7 @@ import { fetchSheetData } from '@/lib/fetchSheetData';
 import ArcPath from './ArcPath';
 import HoverTooltip from './HoverTooltip';
 import Modal from './Modal';
+import ResearchLegend from './ResearchLegend';
 // 서울 기점 마커는 제거되었지만, MAP_CONFIG.seoul은 초기 지도 중심 등 다른 곳에서 참조될 수 있음
 
 const SHEET_CSV_URL = process.env.NEXT_PUBLIC_SHEET_CSV_URL || '';
@@ -52,6 +53,14 @@ export default function MapContent() {
     setHoveredGroupId(null);
   }, []);
 
+  const handleLegendOver = useCallback((researchId: string) => {
+    setHoveredGroupId(researchId);
+  }, []);
+
+  const handleLegendOut = useCallback(() => {
+    setHoveredGroupId(null);
+  }, []);
+
   const researchGroups = groupByResearch(spots);
 
   return (
@@ -60,6 +69,13 @@ export default function MapContent() {
         <div className="data-status data-loading">Loading data...</div>
       )}
       {error && <div className="data-status data-error">{error}</div>}
+
+      <ResearchLegend
+        groups={researchGroups}
+        hoveredGroupId={hoveredGroupId}
+        onHover={handleLegendOver}
+        onOut={handleLegendOut}
+      />
 
       <MapContainer
         center={[MAP_CONFIG.initialCenter.lat, MAP_CONFIG.initialCenter.lng]}

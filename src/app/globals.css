@@ -402,6 +402,68 @@ html, body {
   color: var(--color-border);
 }
 
+/* ===== Research Legend Panel ===== */
+.research-legend {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 240px;
+  pointer-events: auto;
+}
+
+.research-legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.research-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.research-legend-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.research-legend-item-dimmed {
+  opacity: 0.25;
+}
+
+.research-legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.research-legend-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ===== Mobile ===== */
 @media (max-width: 640px) {
   .modal-content {
@@ -415,5 +477,16 @@ html, body {
 
   .modal-gallery {
     grid-template-columns: 1fr;
+  }
+
+  .research-legend {
+    top: 12px;
+    left: 12px;
+    padding: 8px 10px;
+    max-width: 180px;
+  }
+
+  .research-legend-name {
+    font-size: 12px;
   }
 }
