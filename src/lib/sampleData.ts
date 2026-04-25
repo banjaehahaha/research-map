@@ -21,6 +21,9 @@ export const sampleData: SpotData[] = [
     ],
     video_url: '',
     color: '#2563eb',
+    narrative_url: 'https://example.com/narrative',
+    work_url: 'https://example.com/work',
+    presentation_url: 'https://example.com/presentation',
   },
   {
     research_id: 'trip_01',
@@ -41,6 +44,9 @@ export const sampleData: SpotData[] = [
     ],
     video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     color: '#2563eb',
+    narrative_url: 'https://example.com/narrative',
+    work_url: 'https://example.com/work',
+    presentation_url: 'https://example.com/presentation',
   },
   {
     research_id: 'trip_01',
@@ -63,6 +69,9 @@ export const sampleData: SpotData[] = [
     ],
     video_url: '',
     color: '#2563eb',
+    narrative_url: 'https://example.com/narrative',
+    work_url: 'https://example.com/work',
+    presentation_url: 'https://example.com/presentation',
   },
   {
     research_id: 'trip_02',
@@ -83,6 +92,9 @@ export const sampleData: SpotData[] = [
     ],
     video_url: '',
     color: '#16a34a',
+    narrative_url: 'https://example.com/narrative',
+    work_url: 'https://example.com/work',
+    presentation_url: 'https://example.com/presentation',
   },
   {
     research_id: 'trip_02',
@@ -104,6 +116,9 @@ export const sampleData: SpotData[] = [
     ],
     video_url: '',
     color: '#16a34a',
+    narrative_url: 'https://example.com/narrative',
+    work_url: 'https://example.com/work',
+    presentation_url: 'https://example.com/presentation',
   },
   {
     research_id: 'trip_03',
@@ -124,6 +139,9 @@ export const sampleData: SpotData[] = [
     ],
     video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     color: '#d946ef',
+    narrative_url: 'https://example.com/narrative',
+    work_url: 'https://example.com/work',
+    presentation_url: 'https://example.com/presentation',
   },
   {
     research_id: 'trip_03',
@@ -145,5 +163,8 @@ export const sampleData: SpotData[] = [
     ],
     video_url: '',
     color: '#d946ef',
+    narrative_url: 'https://example.com/narrative',
+    work_url: 'https://example.com/work',
+    presentation_url: 'https://example.com/presentation',
   },
 ];

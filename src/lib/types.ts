@@ -13,6 +13,9 @@ export interface SpotData {
   image_urls: string[];
   video_url: string;
   color: string; // 리서치 그룹별 선/마커 색상 (hex, 예: #2563eb)
+  narrative_url: string; // 모달 푸터 - Narrative 버튼 링크
+  work_url: string; // 모달 푸터 - Work 버튼 링크
+  presentation_url: string; // 모달 푸터 - Presentation 버튼 링크
 }
 
 export interface ResearchGroup {

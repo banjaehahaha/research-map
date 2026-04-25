@@ -53,6 +53,9 @@ function parseCSV(csv: string): SpotData[] {
         .filter((url) => url !== ''),
       video_url: row.video_url || '',
       color: row.color || '',
+      narrative_url: row.narrative_url || '',
+      work_url: row.work_url || '',
+      presentation_url: row.presentation_url || '',
     });
   }
 
