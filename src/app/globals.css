@@ -175,8 +175,9 @@ html, body {
   width: 100%;
   padding: 10px 16px;
   border-radius: 8px;
-  border: 1px solid #000;
+  border: none;
   color: #fff;
+  -webkit-text-stroke: 0.4px #000;
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
