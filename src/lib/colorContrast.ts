@@ -6,7 +6,7 @@
 //   brightness = (R*299 + G*587 + B*114) / 1000
 // 0(검정) ~ 255(흰색). 임계값 160을 기준으로 밝은 색 판정.
 
-const DARK_TEXT = '#374151'; // tailwind gray-700 톤
+const DARK_TEXT = '#1a1b1c';
 const LIGHT_TEXT = '#ffffff';
 const BRIGHTNESS_THRESHOLD = 160;
 
