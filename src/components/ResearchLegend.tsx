@@ -40,7 +40,9 @@ export default function ResearchLegend({
                 style={{ backgroundColor: dotColor }}
               />
               <span className="research-legend-name">
-                {group.research_name || group.research_id}
+                {group.spots[0]?.title ||
+                  group.research_name ||
+                  group.research_id}
               </span>
             </li>
           );
