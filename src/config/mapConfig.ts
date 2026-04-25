@@ -24,7 +24,7 @@ export const STYLE_CONFIG = {
   arc: {
     color: '#2563eb',
     weight: 2,
-    opacity: 0.6,
+    opacity: 1,
     dashArray: '8, 4',
   },
 
