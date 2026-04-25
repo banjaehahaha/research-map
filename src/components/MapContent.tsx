@@ -12,6 +12,7 @@ import { fetchSheetData } from '@/lib/fetchSheetData';
 import ArcPath from './ArcPath';
 import HoverTooltip from './HoverTooltip';
 import Modal from './Modal';
+// 서울 기점 마커는 제거되었지만, MAP_CONFIG.seoul은 초기 지도 중심 등 다른 곳에서 참조될 수 있음
 
 const SHEET_CSV_URL = process.env.NEXT_PUBLIC_SHEET_CSV_URL || '';
 
@@ -52,7 +53,6 @@ export default function MapContent() {
   }, []);
 
   const researchGroups = groupByResearch(spots);
-  const seoul: [number, number] = [MAP_CONFIG.seoul.lat, MAP_CONFIG.seoul.lng];
 
   return (
     <>
@@ -73,30 +73,12 @@ export default function MapContent() {
           attribution={MAP_CONFIG.tileAttribution}
         />
 
-        {/* 서울 기점 마커 */}
-        <CircleMarker
-          center={seoul}
-          radius={STYLE_CONFIG.seoulMarker.radius}
-          pathOptions={{
-            fillColor: STYLE_CONFIG.seoulMarker.fillColor,
-            fillOpacity: STYLE_CONFIG.seoulMarker.fillOpacity,
-            color: STYLE_CONFIG.seoulMarker.strokeColor,
-            weight: STYLE_CONFIG.seoulMarker.strokeWeight,
-          }}
-        />
-
-        {/* 각 리서치 그룹별 곡선 + 마커 */}
+        {/* 각 리서치 그룹별 곡선 + 마커 - 첫 번째 스팟이 시작점 */}
         {researchGroups.map((group) => {
           const groupSpots = group.spots;
           const arcs: { from: [number, number]; to: [number, number] }[] = [];
 
-          if (groupSpots.length > 0) {
-            arcs.push({
-              from: seoul,
-              to: [groupSpots[0].lat, groupSpots[0].lng],
-            });
-          }
-
+          // 같은 research_id 내에서 spot_order 순으로 연결
           for (let i = 0; i < groupSpots.length - 1; i++) {
             arcs.push({
               from: [groupSpots[i].lat, groupSpots[i].lng],
