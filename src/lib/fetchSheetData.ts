@@ -1,121 +1,227 @@
-import { SpotData } from './types';
+import {
+  ResearchSpot,
+  WorkSpot,
+  NowSpot,
+  SheetData,
+} from './types';
+import { groupProjects } from './groupData';
 
-// Google Sheets를 "웹에 게시(CSV)"한 URL에서 데이터 가져오기
-// 사용법: Google Sheets > 파일 > 웹에 게시 > CSV 형식 선택 > 게시
-// 또는 시트 ID로 직접 URL 구성:
-// https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv
+const SHEET_ID = process.env.NEXT_PUBLIC_SHEET_ID || '';
 
-export async function fetchSheetData(csvUrl: string): Promise<SpotData[]> {
-  const response = await fetch(csvUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch sheet data: ${response.status}`);
-  }
-
-  const csvText = await response.text();
-  return parseCSV(csvText);
+function buildCsvUrl(sheetName: string): string {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
 }
 
-function parseCSV(csv: string): SpotData[] {
-  const lines = csv.split('\n').filter((line) => line.trim() !== '');
-  if (lines.length < 2) return [];
-
-  // 헤더 파싱
-  const headers = parseCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
-
-  const spots: SpotData[] = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
-    const row: Record<string, string> = {};
-
-    headers.forEach((header, idx) => {
-      row[header] = (values[idx] || '').trim();
-    });
-
-    // 필수 필드 확인
-    if (!row.research_id || !row.lat || !row.lng) continue;
-
-    spots.push({
-      research_id: row.research_id,
-      research_name: row.research_name || '',
-      spot_order: parseInt(row.spot_order, 10) || 1,
-      spot_name: row.spot_name || '',
-      lat: parseFloat(row.lat),
-      lng: parseFloat(row.lng),
-      date_start: row.date_start || row.date || '',
-      date_end: row.date_end || row.date_start || row.date || '',
-      title: row.title || row.spot_name || '',
-      description: row.description || '',
-      thumbnail_url: convertGoogleDriveUrl(row.thumbnail_url || ''),
-      image_urls: (row.image_urls || '')
-        .split(',')
-        .map((url) => convertGoogleDriveUrl(url.trim()))
-        .filter((url) => url !== ''),
-      video_url: row.video_url || '',
-      color: row.color || '',
-      narrative_url: row.narrative_url || '',
-      work_url: row.work_url || '',
-      presentation_url: row.presentation_url || '',
-    });
+export async function fetchAllSheets(): Promise<SheetData> {
+  if (!SHEET_ID) {
+    return { research: [], works: [], now: [], projects: [] };
   }
 
-  return spots;
+  const [researchCsv, worksCsv, nowCsv] = await Promise.all([
+    fetchCsv(buildCsvUrl('Research')),
+    fetchCsv(buildCsvUrl('Works')),
+    fetchCsv(buildCsvUrl('Now')),
+  ]);
+
+  const research = parseResearch(researchCsv);
+  const works = parseWorks(worksCsv);
+  const now = parseNow(nowCsv);
+  const projects = groupProjects(research, works);
+
+  return { research, works, now, projects };
 }
 
-// CSV 한 줄 파싱 (따옴표 안의 쉼표 처리)
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
+async function fetchCsv(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
+  return res.text();
+}
+
+// CSV를 글자 단위로 파싱. quoted field 안의 줄바꿈("\n")도 cell 안에 그대로 보존.
+// (시트 셀에서 줄바꿈 입력해도 행이 깨지지 않게 하기 위함.)
+function parseCsv(csv: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = '';
   let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
+  for (let i = 0; i < csv.length; i++) {
+    const ch = csv[i];
 
     if (inQuotes) {
-      if (char === '"') {
-        if (i + 1 < line.length && line[i + 1] === '"') {
-          current += '"';
-          i++; // 이스케이프된 따옴표
+      if (ch === '"') {
+        if (csv[i + 1] === '"') {
+          // escaped quote ""
+          cell += '"';
+          i++;
         } else {
           inQuotes = false;
         }
       } else {
-        current += char;
+        cell += ch;
       }
+      continue;
+    }
+
+    if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',') {
+      row.push(cell);
+      cell = '';
+    } else if (ch === '\n') {
+      row.push(cell);
+      cell = '';
+      if (row.some((c) => c.trim() !== '')) rows.push(row);
+      row = [];
+    } else if (ch === '\r') {
+      // \r\n: 다음 \n에서 행 끝 처리. 단독 \r: 여기서 행 끝.
+      if (csv[i + 1] === '\n') continue;
+      row.push(cell);
+      cell = '';
+      if (row.some((c) => c.trim() !== '')) rows.push(row);
+      row = [];
     } else {
-      if (char === '"') {
-        inQuotes = true;
-      } else if (char === ',') {
-        result.push(current);
-        current = '';
-      } else {
-        current += char;
-      }
+      cell += ch;
     }
   }
 
-  result.push(current);
-  return result;
+  if (cell !== '' || row.length > 0) {
+    row.push(cell);
+    if (row.some((c) => c.trim() !== '')) rows.push(row);
+  }
+
+  return rows;
 }
 
-// Google Drive 공유 URL을 직접 이미지 URL로 변환
-// https://drive.google.com/file/d/{FILE_ID}/view → 직접 접근 URL
+function parseRows(csv: string): Record<string, string>[] {
+  const matrix = parseCsv(csv);
+  if (matrix.length < 2) return [];
+
+  const headers = matrix[0].map((h) => h.trim().toLowerCase());
+  return matrix.slice(1).map((values) => {
+    const row: Record<string, string> = {};
+    headers.forEach((header, idx) => {
+      // cell의 양끝 공백만 trim. 중간 줄바꿈은 보존.
+      row[header] = (values[idx] || '').trim();
+    });
+    return row;
+  });
+}
+
+function splitList(value: string): string[] {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s !== '');
+}
+
+// Google Drive 공유 URL을 직접 접근 가능한 썸네일 URL로 변환
 function convertGoogleDriveUrl(url: string): string {
   if (!url) return '';
-
-  // Google Drive file URL
-  const driveMatch = url.match(
-    /drive\.google\.com\/file\/d\/([^/]+)/
-  );
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
   if (driveMatch) {
     return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w800`;
   }
-
-  // Google Drive open URL
   const openMatch = url.match(/drive\.google\.com\/open\?id=([^&]+)/);
   if (openMatch) {
     return `https://drive.google.com/thumbnail?id=${openMatch[1]}&sz=w800`;
   }
-
   return url;
+}
+
+function isValidCoord(value: string): boolean {
+  if (!value) return false;
+  const n = parseFloat(value);
+  return !isNaN(n) && isFinite(n);
+}
+
+function parseResearch(csv: string): ResearchSpot[] {
+  return parseRows(csv)
+    .filter((r) => r.research_id && isValidCoord(r.lat) && isValidCoord(r.lng))
+    .map((r) => ({
+      kind: 'research' as const,
+      research_id: r.research_id,
+      research_name: r.research_name,
+      research_name_kr: r.research_name_kr,
+      color: r.color,
+      spot_order: parseInt(r.spot_order, 10) || 0,
+      spot_name: r.spot_name,
+      spot_name_kr: r.spot_name_kr,
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lng),
+      date_start: r.date_start,
+      date_end: r.date_end,
+      title: r.title,
+      title_kr: r.title_kr,
+      description: r.description,
+      description_kr: r.description_kr,
+      description_details: r.description_details,
+      description_details_kr: r.description_details_kr,
+      thumbnail_url: convertGoogleDriveUrl(r.thumbnail_url),
+      image_urls: splitList(r.image_urls).map(convertGoogleDriveUrl),
+      video_url: r.video_url,
+      narrative_url: r.narrative_url,
+      related_work_ids: splitList(r.related_work_ids),
+    }));
+}
+
+function parseWorks(csv: string): WorkSpot[] {
+  return parseRows(csv)
+    .filter((r) => r.work_id && isValidCoord(r.lat) && isValidCoord(r.lng))
+    .map((r) => ({
+      kind: 'work' as const,
+      work_id: r.work_id,
+      research_id: r.research_id,
+      color: r.color,
+      spot_order: parseInt(r.spot_order, 10) || 0,
+      spot_name: r.spot_name,
+      spot_name_kr: r.spot_name_kr,
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lng),
+      date_start: r.date_start,
+      date_end: r.date_end,
+      title: r.title,
+      title_kr: r.title_kr,
+      venue: r.venue,
+      venue_kr: r.venue_kr,
+      description: r.description,
+      description_kr: r.description_kr,
+      description_details: r.description_details,
+      description_details_kr: r.description_details_kr,
+      thumbnail_url: convertGoogleDriveUrl(r.thumbnail_url),
+      work_urls: splitList(r.work_urls).map(convertGoogleDriveUrl),
+      exhibition_urls: splitList(r.exhibition_urls).map(convertGoogleDriveUrl),
+      text_urls: splitList(r.text_urls),
+      narrative_url: r.narrative_url,
+      video_url: r.video_url,
+    }));
+}
+
+function parseNow(csv: string): NowSpot[] {
+  return parseRows(csv)
+    .filter((r) => r.type && isValidCoord(r.lat) && isValidCoord(r.lng))
+    .map((r) => ({
+      kind: 'now' as const,
+      type: r.type === 'current' ? 'current' : 'upcoming',
+      color: r.color,
+      spot_order: parseInt(r.spot_order, 10) || 0,
+      spot_name: r.spot_name,
+      lat: parseFloat(r.lat),
+      lng: parseFloat(r.lng),
+      date_start: r.date_start,
+      date_end: r.date_end,
+      title: r.title,
+      title_kr: r.title_kr,
+      venue: r.venue,
+      venue_kr: r.venue_kr,
+      description: r.description,
+      description_kr: r.description_kr,
+      thumbnail_url: convertGoogleDriveUrl(r.thumbnail_url),
+      event_url: r.event_url,
+      cv_url: r.cv_url,
+      related_research_id: r.related_research_id,
+      related_work_id: r.related_work_id,
+      video_url: r.video_url,
+    }));
 }

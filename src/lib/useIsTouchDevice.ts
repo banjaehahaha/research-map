@@ -5,12 +5,15 @@ import { useEffect, useState } from 'react';
 const TOUCH_QUERY = '(hover: none) and (pointer: coarse)';
 
 export function useIsTouchDevice(): boolean {
-  const [isTouch, setIsTouch] = useState(false);
+  // SSR 시점엔 window가 없어 false로 초기화. 클라이언트 마운트 후 정확한 값으로 보정.
+  const [isTouch, setIsTouch] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia(TOUCH_QUERY).matches;
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const mql = window.matchMedia(TOUCH_QUERY);
-    setIsTouch(mql.matches);
     const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);

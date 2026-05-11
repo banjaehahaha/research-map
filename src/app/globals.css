@@ -10,7 +10,7 @@
   --color-text-secondary: #6b7280;
   --color-border: #e5e7eb;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --header-height: 48px;
+  --header-height: 52px;
 }
 
 /* ===== Reset & Base ===== */
@@ -53,23 +53,26 @@ html, body {
 }
 
 .header-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-text);
 }
 
-.header-link {
+.header-menu-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 8px;
   margin: -8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   color: var(--color-text-secondary);
   transition: color 0.2s;
 }
 
-.header-link:hover {
+.header-menu-btn:hover {
   color: var(--color-text);
 }
 
@@ -98,35 +101,152 @@ html, body {
   white-space: nowrap;
 }
 
-.spot-label-seoul {
-  font-weight: 700;
-  color: var(--color-accent);
+/* ===== Side Panel ===== */
+.side-panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 500;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 240px;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* ===== Spot Tooltip (hover) ===== */
-.spot-tooltip {
-  width: 200px;
-  text-align: center;
-}
-
-.spot-tooltip-img {
-  width: 100%;
-  height: 130px;
-  object-fit: cover;
-  border-radius: 4px;
-  margin-bottom: 6px;
-}
-
-.spot-tooltip-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 2px;
-}
-
-.spot-tooltip-date {
-  font-size: 11px;
+.side-panel-lang {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
   color: var(--color-text-secondary);
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.lang-btn:hover {
+  color: var(--color-text);
+}
+
+.lang-btn-active {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.lang-divider {
+  color: var(--color-border);
+  font-weight: 300;
+}
+
+.side-panel-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0 2px;
+  border-top: 1px solid var(--color-border);
+}
+
+.side-panel-layer-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 0;
+}
+
+.side-panel-layer-toggle input {
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: var(--color-text);
+  margin: 0;
+}
+
+.side-panel-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 0;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.side-panel-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.side-panel-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.side-panel-item-dimmed {
+  opacity: 0.25;
+}
+
+.side-panel-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.side-panel-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.side-panel-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Now: current pulse ===== */
+@keyframes nowPulse {
+  0%   { transform: scale(1);   opacity: 1; }
+  70%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+
+.now-current-pulse {
+  animation: nowPulse 1.6s ease-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
 }
 
 /* ===== Modal ===== */
@@ -154,7 +274,7 @@ html, body {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* 푸터가 둥근 모서리 안쪽에 머물도록 */
+  overflow: hidden;
 }
 
 .modal-body {
@@ -165,9 +285,9 @@ html, body {
 
 .modal-footer {
   flex: 0 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   padding: 16px 24px;
   border-top: 1px solid var(--color-border);
   background: white;
@@ -177,7 +297,8 @@ html, body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 100px;
   padding: 10px 16px;
   border-radius: 8px;
   border: none;
@@ -195,10 +316,6 @@ html, body {
 
 .modal-link-btn:active {
   transform: translateY(0);
-}
-
-.modal-link-btn-empty {
-  display: block;
 }
 
 .modal-close {
@@ -232,18 +349,42 @@ html, body {
 
 .modal-meta {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   font-size: 13px;
   color: var(--color-text-secondary);
   margin-bottom: 16px;
+}
+
+.modal-meta-dot {
+  color: var(--color-border);
 }
 
 .modal-description {
   font-size: 15px;
   line-height: 1.7;
   color: var(--color-text);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   white-space: pre-line;
+}
+
+.modal-description-details {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  white-space: pre-line;
+  margin-bottom: 24px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-border);
+}
+
+.modal-section-heading {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 24px 0 10px;
 }
 
 .modal-gallery {
@@ -283,6 +424,74 @@ html, body {
   border: none;
 }
 
+.modal-related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-related-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  background: white;
+  text-align: left;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--color-text);
+  transition: background 0.15s, border-color 0.15s;
+  width: 100%;
+}
+
+.modal-related-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--color-text-secondary);
+}
+
+.modal-related-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.modal-related-dot-hollow {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: white;
+  flex-shrink: 0;
+}
+
+/* ===== Bottom-sheet modal (mobile-first) ===== */
+.modal-backdrop.is-bottom-sheet {
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+
+.modal-backdrop.is-bottom-sheet .modal-content {
+  width: 100%;
+  max-width: 720px;
+  max-height: 86vh;
+  border-radius: 16px 16px 0 0;
+  animation: bottomSheetSlideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes bottomSheetSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
 /* ===== Leaflet Overrides ===== */
 .leaflet-tooltip {
   background: white;
@@ -304,7 +513,7 @@ html, body {
 /* ===== Data Status ===== */
 .data-status {
   position: absolute;
-  top: 56px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1500;
@@ -341,7 +550,7 @@ html, body {
 
 @keyframes tooltipFadeIn {
   from { opacity: 0; transform: translate(-50%, -100%) translateY(4px); }
-  to { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
+  to   { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
 }
 
 .hover-tooltip-img {
@@ -422,13 +631,8 @@ html, body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-.viewer-prev {
-  left: 20px;
-}
-
-.viewer-next {
-  right: 20px;
-}
+.viewer-prev { left: 20px; }
+.viewer-next { right: 20px; }
 
 .viewer-img {
   max-width: 90vw;
@@ -447,148 +651,52 @@ html, body {
   font-size: 13px;
 }
 
-/* ===== Modal meta dot ===== */
-.modal-meta-dot {
-  color: var(--color-border);
+/* ===== Layer transition ===== */
+@keyframes layerFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-/* ===== Research Legend Panel ===== */
-.research-legend {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 500;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  max-width: 240px;
-  pointer-events: auto;
-}
-
-.research-legend-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.research-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: opacity 0.15s ease, background 0.15s ease;
-}
-
-.research-legend-item:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.research-legend-item-dimmed {
-  opacity: 0.25;
-}
-
-.research-legend-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-.research-legend-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.leaflet-overlay-pane svg path {
+  transition: opacity 0.45s ease, fill-opacity 0.45s ease, stroke-opacity 0.45s ease;
 }
 
 /* ===== Mobile ===== */
 @media (max-width: 640px) {
-  .modal-content {
-    border-radius: 8px;
-  }
-
-  .modal-body {
-    padding: 24px;
-  }
-
-  .modal-footer {
-    padding: 12px 14px;
-    gap: 8px;
-  }
-
+  .modal-content { border-radius: 12px 12px 0 0; }
+  .modal-body    { padding: 22px 22px 28px; }
+  .modal-footer  { padding: 12px 14px; gap: 8px; }
   .modal-link-btn {
-    padding: 10px 6px;
+    padding: 10px 8px;
     font-size: 12px;
+    min-width: 72px;
     min-height: 40px;
   }
-
   .modal-close {
-    width: 40px;
-    height: 40px;
-    top: 12px;
-    right: 12px;
+    width: 40px; height: 40px;
+    top: 12px; right: 12px;
     font-size: 24px;
   }
+  .modal-title   { font-size: 18px; }
+  .modal-gallery { grid-template-columns: 1fr; }
 
-  .modal-title {
-    font-size: 18px;
-  }
-
-  .modal-gallery {
-    grid-template-columns: 1fr;
-  }
-
-  .research-legend {
+  .side-panel {
     top: 12px;
     left: 12px;
     padding: 8px 10px;
-    max-width: 180px;
+    max-width: 200px;
   }
-
-  .research-legend-item {
-    padding: 8px 8px;
-  }
-
-  .research-legend-name {
-    font-size: 12px;
-  }
+  .side-panel-item { padding: 6px 6px; }
+  .side-panel-name { font-size: 12px; }
+  .side-panel-layer-toggle { font-size: 12px; }
 }
 
 /* ===== Touch device tweaks (any viewport) ===== */
 @media (hover: none) and (pointer: coarse) {
-  /* 터치 디바이스에서 hover 효과는 의미 없으므로 끔 */
-  .research-legend-item:hover {
-    background: transparent;
-  }
+  .side-panel-item:hover { background: transparent; }
+  .modal-link-btn:hover  { opacity: 1; transform: none; }
+  .modal-gallery-img:hover { opacity: 1; }
 
-  .modal-link-btn:hover {
-    opacity: 1;
-    transform: none;
-  }
-
-  .modal-gallery-img:hover {
-    opacity: 1;
-  }
-
-  /* 활성(탭) 시 즉각 피드백 */
-  .research-legend-item:active {
-    background: rgba(0, 0, 0, 0.06);
-  }
-
-  .modal-link-btn:active {
-    opacity: 0.85;
-  }
+  .side-panel-item:active { background: rgba(0, 0, 0, 0.06); }
+  .modal-link-btn:active  { opacity: 0.85; }
 }

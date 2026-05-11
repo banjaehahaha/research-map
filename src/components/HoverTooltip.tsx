@@ -2,11 +2,11 @@
 
 import { useMap } from 'react-leaflet';
 import { useEffect, useState } from 'react';
-import { SpotData } from '@/lib/types';
+import { ResearchSpot } from '@/lib/types';
 import { formatDateRange } from '@/lib/formatDate';
 
 interface HoverTooltipProps {
-  spot: SpotData;
+  spot: ResearchSpot;
 }
 
 export default function HoverTooltip({ spot }: HoverTooltipProps) {
@@ -34,13 +34,17 @@ export default function HoverTooltip({ spot }: HoverTooltipProps) {
         top: position.y,
       }}
     >
-      <img
-        src={spot.thumbnail_url}
-        alt={spot.title}
-        className="hover-tooltip-img"
-      />
+      {spot.thumbnail_url && (
+        <img
+          src={spot.thumbnail_url}
+          alt={spot.title}
+          className="hover-tooltip-img"
+        />
+      )}
       <div className="hover-tooltip-title">{spot.title}</div>
-      <div className="hover-tooltip-date">{formatDateRange(spot.date_start, spot.date_end)}</div>
+      <div className="hover-tooltip-date">
+        {formatDateRange(spot.date_start, spot.date_end)}
+      </div>
     </div>
   );
 }
